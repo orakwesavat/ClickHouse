@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Interpreters/Context.h>
+#include <Interpreters/Context_fwd.h>
 #include <Processors/Port.h>
 #include <Processors/QueryPlan/IQueryPlanStep.h>
 #include <Common/CurrentThread.h>
