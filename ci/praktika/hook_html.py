@@ -3,6 +3,8 @@ import json
 from pathlib import Path
 from typing import List
 
+from praktika.utils import Shell
+
 from ._environment import _Environment
 from .gh import GH
 from .info import Info
@@ -148,6 +150,8 @@ class HtmlRunnerHooks:
             pem = _workflow.get_secret(Settings.SECRET_GH_APP_PEM_KEY).get_value()
             app_id = _workflow.get_secret(Settings.SECRET_GH_APP_ID).get_value()
             GHAuth.auth(app_key=pem, app_id=app_id)
+            token = GHAuth.auth(app_key=pem, app_id=app_id)
+            Shell.check(f'curl -X POST -H "Authorization: token {token}" -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/ClickHouse/ClickHouse/issues/{env.PR_NUMBER}/comments -d \'{"body": "This is a test comment."}\'')
 
         res2 = not bool(env.PR_NUMBER) or GH.post_pr_comment(
             comment_body=f"Workflow [[{_workflow.name}]({page_url})], commit [{_Environment.get().SHA[:8]}]",
@@ -274,7 +278,8 @@ class HtmlRunnerHooks:
 
                 pem = _workflow.get_secret(Settings.SECRET_GH_APP_PEM_KEY).get_value()
                 app_id = _workflow.get_secret(Settings.SECRET_GH_APP_ID).get_value()
-                GHAuth.auth(app_key=pem, app_id=app_id)
+                token = GHAuth.auth(app_key=pem, app_id=app_id)
+                Shell.check(f'curl -X POST -H "Authorization: token {token}" -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/ClickHouse/ClickHouse/issues/{env.PR_NUMBER}/comments -d \'{"body": "This is a test comment."}\'')
 
             print(f"Update GH commit status [{result.name}]: [{updated_status}]")
             GH.post_commit_status(
