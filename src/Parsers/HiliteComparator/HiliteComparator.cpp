@@ -1,19 +1,18 @@
 #include "HiliteComparator.h"
-#include <memory>
 
 namespace HiliteComparator
 {
 
-void consume_hilites(const char * ptr, Hilite * last_hilite)
+void consume_hilites(std::string_view::iterator * ptr, Hilite * last_hilite)
 {
     while (true)
     {
         bool changed_hilite = false;
         for (Hilite hilite : hilites)
         {
-            if (std::string_view(ptr).starts_with(hilite))
+            if (std::string_view(&**ptr).starts_with(hilite))
             {
-                ptr += strlen(hilite);
+                *(ptr) += strlen(hilite);
                 changed_hilite = true;
                 if (last_hilite != nullptr)
                     *last_hilite = hilite;
@@ -31,12 +30,12 @@ bool are_equal_with_hilites_removed(std::string_view left, std::string_view righ
 
 String remove_hilites(std::string_view string)
 {
-    const char * ptr = string.data();
+    auto ptr = string.begin();
     String string_without_hilites;
     while (true)
     {
-        consume_hilites(ptr);
-        if (ptr == string.data() + string.size())
+        consume_hilites(&ptr);
+        if (ptr == string.end())
             return string_without_hilites;
         string_without_hilites += *(ptr++);
     }
@@ -59,8 +58,8 @@ bool are_equal_with_hilites(std::string_view left, std::string_view right, bool 
     while (true)
     {
         // For each argument, consume all prefix hilites, and update the current hilite to be the last one.
-        consume_hilites(std::to_address(left_it), &left_hilite);
-        consume_hilites(std::to_address(right_it), &right_hilite);
+        consume_hilites(&left_it, &left_hilite);
+        consume_hilites(&right_it, &right_hilite);
 
         if (left_it == left.end() && right_it == right.end())
         {
